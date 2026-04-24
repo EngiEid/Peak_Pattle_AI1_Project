@@ -28,7 +28,6 @@ class GreedyAgent {
     Set<Offset> visited = {start};
 
     while (openSet.isNotEmpty) {
-      // Greedy بيختار النقطة اللي ليها أقل Heuristic فقط
       openSet.sort((a, b) => _heuristic(a).compareTo(_heuristic(b)));
       Offset current = openSet.removeAt(0);
 

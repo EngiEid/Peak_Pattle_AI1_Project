@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
 import 'dart:async';
-import 'Gui/map_logic.dart';
-import 'Gui/map_painter.dart';
+import 'gui/map_logic.dart';
+import 'gui/map_painter.dart';
 import 'home_page.dart';
 import 'random_search/naive_agent.dart';
 import 'Problem_formulation.dart';
-import 'Local_Search/hill_climbing_agent.dart';
-import 'UnInformed_Search/bfs_agent.dart';
-import 'UnInformed_Search/dfs_agent.dart';
-import 'Informed_Search/a_star_agent.dart';
-import 'Informed_Search/greedy_agent.dart';
+import 'local_search/hill_climbing_agent.dart';
+import 'uninformed_search/bfs_agent.dart';
+import 'uninformed_search/dfs_agent.dart';
+import 'informed_search/a_star_agent.dart';
+import 'informed_search/greedy_agent.dart';
 
 void main() => runApp(
   const MaterialApp(debugShowCheckedModeBanner: false, home: GameHomePage()),
@@ -81,7 +81,6 @@ class _MapExplorerAppState extends State<MapExplorerApp>
       List<Offset> peaks = mapData.findAllLocalPeaks();
       _aiAgent = DFSAgent(problem, peaks, startPoint);
     } else if (widget.selectedAgent == AgentType.aStar) {
-      // التعديل هنا
       List<Offset> peaks = mapData.findAllLocalPeaks();
       _aiAgent = AStarAgent(problem, peaks, startPoint);
     } else if (widget.selectedAgent == AgentType.greedy) {
@@ -251,62 +250,64 @@ class _MapExplorerAppState extends State<MapExplorerApp>
                   ),
               ],
             ),
-actionsAlignment: MainAxisAlignment.center,
-          actions: [
-            // نستخدم Column هنا لترتيب الأزرار فوق بعضها بشكل جمالي
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // 1. زر العودة للرئيسية
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: isPlayerWinner ? Colors.orange : Colors.blueGrey,
-                    minimumSize: const Size(200, 45), // تكبير الزر قليلاً
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
+            actionsAlignment: MainAxisAlignment.center,
+            actions: [
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: isPlayerWinner
+                          ? Colors.orange
+                          : Colors.blueGrey,
+                      minimumSize: const Size(200, 45), 
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
                     ),
-                  ),
-                  onPressed: () {
-                    Navigator.pop(context); // قفل الديالموج
-                    Navigator.pop(context); // الرجوع للهوم
-                  },
-                  child: const Text(
-                    "Back to Home 🏠",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                
-                const SizedBox(height: 8), // مسافة بسيطة بين الزرين
-
-                // 2. زر التحليل (يظهر فقط لأنواع معينة من الـ AI)
-                if (widget.selectedAgent != AgentType.naive &&
-                    widget.selectedAgent != AgentType.hillClimbing)
-                  TextButton.icon(
                     onPressed: () {
-                      setState(() {
-                        _showFinalPath = true;
-                        _showGraph = true;
-                      });
-                      Navigator.pop(context); // قفل الديالوج فقط
+                      Navigator.pop(context); 
+                      Navigator.pop(context); 
                     },
-                    icon: const Icon(Icons.auto_awesome_motion, color: Colors.blueGrey),
-                    label: const Text(
-                      "Analyze AI Strategy 🧠",
+                    child: const Text(
+                      "Back to Home 🏠",
                       style: TextStyle(
-                        color: Colors.blueGrey, 
-                        fontWeight: FontWeight.bold
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
-                
-                const SizedBox(height: 10),
-              ],
-            ),
-          ],
-        ));
+
+                  const SizedBox(height: 8), 
+                  if (widget.selectedAgent != AgentType.naive &&
+                      widget.selectedAgent != AgentType.hillClimbing)
+                    TextButton.icon(
+                      onPressed: () {
+                        setState(() {
+                          _showFinalPath = true;
+                          _showGraph = true;
+                        });
+                        Navigator.pop(context); 
+                      },
+                      icon: const Icon(
+                        Icons.auto_awesome_motion,
+                        color: Colors.blueGrey,
+                      ),
+                      label: const Text(
+                        "Analyze AI Strategy 🧠",
+                        style: TextStyle(
+                          color: Colors.blueGrey,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+
+                  const SizedBox(height: 10),
+                ],
+              ),
+            ],
+          ),
+        );
       },
     );
   }
@@ -374,10 +375,8 @@ actionsAlignment: MainAxisAlignment.center,
           ),
           const SizedBox(height: 20),
 
-          // منطقة الخريطة مع زر الـ Graph
           Center(
             child: Stack(
-              // استخدمنا Stack هنا لوضع الزر فوق الخريطة
               children: [
                 Container(
                   width: 360,
@@ -403,13 +402,12 @@ actionsAlignment: MainAxisAlignment.center,
                         _currentPos,
                         aiPos: _aiPos,
                         showGraph: _showGraph,
-                        // التعديل هنا ليشمل الحالتين
                         aiGraph: (widget.selectedAgent == AgentType.bfs)
                             ? (_aiAgent as BFSAgent).graph
                             : (widget.selectedAgent == AgentType.dfs)
                             ? (_aiAgent as DFSAgent).graph
                             : (widget.selectedAgent ==
-                                  AgentType.aStar) // أضيفي هذا السطر
+                                  AgentType.aStar) 
                             ? (_aiAgent as AStarAgent).graph
                             : (widget.selectedAgent == AgentType.greedy)
                             ? (_aiAgent as GreedyAgent).graph
@@ -420,13 +418,11 @@ actionsAlignment: MainAxisAlignment.center,
                   ),
                 ),
 
-                // زر تبديل الـ Graph (يظهر فقط في حالة BFS)
-                // زر تبديل الـ Graph (يظهر في BFS و DFS)
                 if (widget.selectedAgent == AgentType.bfs ||
                     widget.selectedAgent == AgentType.dfs ||
                     widget.selectedAgent == AgentType.aStar ||
                     widget.selectedAgent ==
-                        AgentType.greedy) // أضيفي الـ aStar هنا
+                        AgentType.greedy)
                   Positioned(
                     top: 10,
                     right: 10,

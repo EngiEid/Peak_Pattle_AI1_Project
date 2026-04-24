@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'Gui/map_logic.dart';
+import 'gui/map_logic.dart';
 
 class AIProblem {
   final MapData mapData;

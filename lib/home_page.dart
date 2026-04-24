@@ -25,9 +25,8 @@ Center(
   child: Column(
     mainAxisAlignment: MainAxisAlignment.center,
     children: [
-      const SizedBox(height: 60), // مسافة علوية
+      const SizedBox(height: 60), 
       
-      // العنوان يظل ثابتاً ولا يتحرك مع السكرول
       Text(
         "PEAK BATTLE",
         style: TextStyle(
@@ -55,21 +54,18 @@ Center(
       
       const SizedBox(height: 30),
 
-      // الـ Container الشفاف الذي يحتوي على الأزرار القابلة للتمرير
       Container(
-        height: 450, // يمكنكِ تعديل الارتفاع حسب رغبتك
+        height: 450,
         width: double.infinity,
         margin: const EdgeInsets.symmetric(horizontal: 20),
         decoration: BoxDecoration(
-          color: Colors.transparent, // شفاف تماماً
-          // إذا أردتِ لمحة تظليل خفيفة جداً للفصل يمكن إضافة:
-          // color: Colors.white.withOpacity(0.05), 
+          color: Colors.transparent, 
           borderRadius: BorderRadius.circular(20),
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(20),
           child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(), // يعطي إحساس مرن أثناء السكرول
+            physics: const BouncingScrollPhysics(), 
             child: Column(
               children: [
                 _buildAlgoCard(
@@ -120,7 +116,7 @@ Center(
                   color: Colors.pinkAccent,
                   agentType: AgentType.greedy,
                 ),
-                const SizedBox(height: 20), // مسافة صغيرة في نهاية القائمة
+                const SizedBox(height: 20), 
               ],
             ),
           ),
@@ -158,14 +154,14 @@ Center(
       child: Padding(
         padding: const EdgeInsets.symmetric(
           vertical: 8,
-        ), // تقليل المسافة قليلاً
+        ), 
         child: ClipRRect(
           borderRadius: BorderRadius.circular(20),
           child: BackdropFilter(
             filter: ImageFilter.blur(
               sigmaX: 7,
               sigmaY: 7,
-            ), // زيادة التغبيش لشكل أرقى
+            ), 
             child: Container(
               width: 320,
               padding: const EdgeInsets.all(15),

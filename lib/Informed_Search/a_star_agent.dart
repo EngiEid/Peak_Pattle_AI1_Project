@@ -1,4 +1,3 @@
-import 'dart:collection';
 import 'package:flutter/material.dart';
 import '../Problem_formulation.dart';
 import '../graph_factory.dart';
@@ -19,37 +18,29 @@ class AStarAgent {
     _solveAStar(currentState);
   }
 
-  // الـ Heuristic: المسافة المباشرة للهدف
   double _heuristic(Offset node) {
     return (node - problem.mapData.globalPeakPos).distance;
   }
 
   void _solveAStar(Offset start) {
-    // قائمة بالعقد اللي محتاجين نفحصها (Open Set)
     List<Offset> openSet = [start];
     
-    // تسجيل من أين جئنا (Parent Map)
     Map<Offset, Offset?> parent = {start: null};
 
-    // gScore: التكلفة الفعليه من البداية حتى هذه النقطة
     Map<Offset, double> gScore = {start: 0.0};
 
-    // fScore: التكلفة الكلية المتوقعة (g + h)
     Map<Offset, double> fScore = {start: _heuristic(start)};
 
     while (openSet.isNotEmpty) {
-      // اختيار العقدة اللي ليها أقل fScore (أقل تكلفة كلية متوقعة)
       openSet.sort((a, b) => fScore[a]!.compareTo(fScore[b]!));
       Offset current = openSet.removeAt(0);
 
-      // Goal Test
       if ((current - problem.mapData.globalPeakPos).distance < 1.0) {
         _reconstructPath(parent, current);
         return;
       }
 
       for (Offset neighbor in graph[current] ?? []) {
-        // التكلفة من البداية للجار عبر النقطة الحالية
         double tentativeGScore = gScore[current]! + (current - neighbor).distance;
 
         if (!gScore.containsKey(neighbor) || tentativeGScore < gScore[neighbor]!) {

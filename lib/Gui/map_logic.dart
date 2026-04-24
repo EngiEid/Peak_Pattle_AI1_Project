@@ -16,14 +16,12 @@ class MapData {
   void generateNewMap(double step) {
     Random random = Random(seed);
     
-    // 1. Initialize the grid with zeros
     grid = List.generate(gridSize, (y) => List.generate(gridSize, (x) => 0.0));
     realPeaksCenters.clear();
 
     int numPeaks = 40;
     List<Map<String, dynamic>> peaksMetadata = [];
 
-    // 2. Generate Peaks Metadata
     for (int i = 0; i < numPeaks; i++) {
       double px = random.nextDouble() * (gridSize - 1);
       double py = random.nextDouble() * (gridSize - 1);
@@ -50,15 +48,12 @@ class MapData {
       });
     }
 
-    // 3. Populate the Grid efficiently using Bounding Boxes
     for (var peak in peaksMetadata) {
       double px = peak['x'];
       double py = peak['y'];
       double z = peak['z'];
       double radius = peak['radius'];
 
-      // Calculate the effective range of the peak (3 * sigma rule for Gaussians)
-      // Since radius in your formula is like 2*sigma^2, sqrt(radius)*2.5 is a safe boundary
       int range = (sqrt(radius) * 2.5).toInt();
 
       int startX = (px - range).toInt().clamp(0, gridSize - 1);
@@ -70,10 +65,8 @@ class MapData {
         for (int x = startX; x <= endX; x++) {
           double distSq = (pow((x - px), 2) + pow((y - py), 2)).toDouble();
           
-          // The Gaussian function
           double val = z * exp(-distSq / radius);
           
-          // Only update if the new value is higher (creating the peak)
           if (val > grid[y][x]) {
             grid[y][x] = val.clamp(0.0, 1.0);
           }
