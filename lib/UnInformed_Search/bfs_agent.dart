@@ -1,29 +1,31 @@
+import 'dart:collection';
 import 'package:flutter/material.dart';
-import 'Problem_formulation.dart';
-import 'graph_factory.dart';
+import '../Problem_formulation.dart';
+import '../graph_factory.dart'; 
 
-class DFSAgent {
+class BFSAgent {
   final AIProblem problem;
-  final Map<Offset, List<Offset>> graph; 
-  List<Offset> nodePath = []; 
+  final Map<Offset, List<Offset>> graph;
+  List<Offset> nodePath = [];
   int nextNodeIndex = 0;
   Offset currentState;
 
-  DFSAgent(this.problem, List<Offset> allPeaks, this.currentState)
+  BFSAgent(this.problem, List<Offset> allPeaks, this.currentState)
       : graph = GraphFactory.buildConnectedGraph(
           startPos: currentState,
           peaks: allPeaks,
-          k: 5,
+          k: 5, 
         ) {
-    _solveDFS(currentState);
+    _solveTrueBFS(currentState);
   }
 
-  void _solveDFS(Offset start) {
-    List<Offset> stack = [start];
+  void _solveTrueBFS(Offset start) {
+    Queue<Offset> queue = Queue();
     Set<Offset> visited = {start};
+    queue.add(start);
 
-    while (stack.isNotEmpty) {
-      Offset currentNode = stack.removeLast();
+    while (queue.isNotEmpty) {
+      Offset currentNode = queue.removeFirst();
       nodePath.add(currentNode);
 
       if ((currentNode - problem.mapData.globalPeakPos).distance < 1.0) return;
@@ -31,7 +33,7 @@ class DFSAgent {
       for (Offset neighbor in graph[currentNode] ?? []) {
         if (!visited.contains(neighbor)) {
           visited.add(neighbor);
-          stack.add(neighbor);
+          queue.add(neighbor);
         }
       }
     }

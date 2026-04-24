@@ -1,6 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'Problem_formulation.dart';
+import '../Problem_formulation.dart';
 
 class HillClimbingAgent {
   final AIProblem problem;

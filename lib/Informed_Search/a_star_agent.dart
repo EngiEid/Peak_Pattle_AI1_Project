@@ -1,7 +1,7 @@
 import 'dart:collection';
 import 'package:flutter/material.dart';
-import 'Problem_formulation.dart';
-import 'graph_factory.dart';
+import '../Problem_formulation.dart';
+import '../graph_factory.dart';
 
 class AStarAgent {
   final AIProblem problem;

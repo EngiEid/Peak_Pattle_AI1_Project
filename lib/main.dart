@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
 import 'dart:async';
-import 'map_logic.dart';
-import 'map_painter.dart';
+import 'Gui/map_logic.dart';
+import 'Gui/map_painter.dart';
 import 'home_page.dart';
-import 'naive_agent.dart';
+import 'random_search/naive_agent.dart';
 import 'Problem_formulation.dart';
-import 'hill_climbing_agent.dart';
-import 'bfs_agent.dart';
-import 'dfs_agent.dart';
-import 'a_star_agent.dart';
-import 'greedy_agent.dart';
+import 'Local_Search/hill_climbing_agent.dart';
+import 'UnInformed_Search/bfs_agent.dart';
+import 'UnInformed_Search/dfs_agent.dart';
+import 'Informed_Search/a_star_agent.dart';
+import 'Informed_Search/greedy_agent.dart';
 
 void main() => runApp(
   const MaterialApp(debugShowCheckedModeBanner: false, home: GameHomePage()),
