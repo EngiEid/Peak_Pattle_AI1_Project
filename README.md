@@ -40,7 +40,7 @@ lib/
 ├── 📁 gui/                     # UI components, map logic, and custom painters
 │   ├── map_logic.dart
 │   └── map_painter.dart
-├── 📁 Informed_Search/         # Heuristic-based search algorithms
+├── 📁 best_first_Search/         # Heuristic-based search algorithms
 │   ├── a_star_agent.dart
 │   └── greedy_agent.dart
 ├── 📁 Local_Search/            # Optimization & local search algorithms
