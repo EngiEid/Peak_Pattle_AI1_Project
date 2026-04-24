@@ -4,7 +4,7 @@ import 'graph_factory.dart';
 
 class DFSAgent {
   final AIProblem problem;
-  final Map<Offset, List<Offset>> graph; // الـ Graph موجود هنا ليتم رسمه
+  final Map<Offset, List<Offset>> graph; 
   List<Offset> nodePath = []; 
   int nextNodeIndex = 0;
   Offset currentState;
@@ -13,7 +13,7 @@ class DFSAgent {
       : graph = GraphFactory.buildConnectedGraph(
           startPos: currentState,
           peaks: allPeaks,
-          k: 3,
+          k: 5,
         ) {
     _solveDFS(currentState);
   }

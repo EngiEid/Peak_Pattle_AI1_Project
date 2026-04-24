@@ -6,8 +6,7 @@ class MapData {
   late List<List<double>> grid;
   final int seed;
   late Offset globalPeakPos;
-  
-  // --- التعديل السحري هنا: قائمة لتخزين مراكز القمم الحقيقية ---
+
   List<Offset> realPeaksCenters = [];
 
   MapData(this.seed, {double step = 5.0}) {
@@ -16,16 +15,20 @@ class MapData {
 
   void generateNewMap(double step) {
     Random random = Random(seed);
+    
+    // 1. Initialize the grid with zeros
     grid = List.generate(gridSize, (y) => List.generate(gridSize, (x) => 0.0));
-    realPeaksCenters.clear(); // مسح القائمة القديمة
+    realPeaksCenters.clear();
 
     int numPeaks = 40;
     List<Map<String, dynamic>> peaksMetadata = [];
 
+    // 2. Generate Peaks Metadata
     for (int i = 0; i < numPeaks; i++) {
       double px = random.nextDouble() * (gridSize - 1);
       double py = random.nextDouble() * (gridSize - 1);
-      
+
+      // Special handling for the Global Peak (First peak)
       if (i == 0) {
         px = 100 + ((px - 100) / step).round() * step;
         py = 100 + ((py - 100) / step).round() * step;
@@ -34,31 +37,51 @@ class MapData {
         globalPeakPos = Offset(px, py);
       }
 
-      // تخزين المركز الحقيقي في القائمة لاستخدامه في الـ Graph
       realPeaksCenters.add(Offset(px, py));
 
+      // Higher zValue for the global peak to ensure it's the highest
       double zValue = (i == 0) ? 1.0 : (0.3 + random.nextDouble() * 0.65);
+      
       peaksMetadata.add({
-        'x': px, 'y': py, 'z': zValue,
+        'x': px,
+        'y': py,
+        'z': zValue,
         'radius': 1800.0 + random.nextDouble() * 2500.0,
       });
     }
 
-    // بناء المصفوفة (الجريد) بناءً على مراكز القمم
-    for (int y = 0; y < gridSize; y++) {
-      for (int x = 0; x < gridSize; x++) {
-        double currentMax = 0.0;
-        for (var peak in peaksMetadata) {
-          double distSq = (pow((x - peak['x']), 2) + pow((y - peak['y']), 2)).toDouble();
-          double val = peak['z'] * exp(-distSq / peak['radius']);
-          if (val > currentMax) currentMax = val;
+    // 3. Populate the Grid efficiently using Bounding Boxes
+    for (var peak in peaksMetadata) {
+      double px = peak['x'];
+      double py = peak['y'];
+      double z = peak['z'];
+      double radius = peak['radius'];
+
+      // Calculate the effective range of the peak (3 * sigma rule for Gaussians)
+      // Since radius in your formula is like 2*sigma^2, sqrt(radius)*2.5 is a safe boundary
+      int range = (sqrt(radius) * 2.5).toInt();
+
+      int startX = (px - range).toInt().clamp(0, gridSize - 1);
+      int endX = (px + range).toInt().clamp(0, gridSize - 1);
+      int startY = (py - range).toInt().clamp(0, gridSize - 1);
+      int endY = (py + range).toInt().clamp(0, gridSize - 1);
+
+      for (int y = startY; y <= endY; y++) {
+        for (int x = startX; x <= endX; x++) {
+          double distSq = (pow((x - px), 2) + pow((y - py), 2)).toDouble();
+          
+          // The Gaussian function
+          double val = z * exp(-distSq / radius);
+          
+          // Only update if the new value is higher (creating the peak)
+          if (val > grid[y][x]) {
+            grid[y][x] = val.clamp(0.0, 1.0);
+          }
         }
-        grid[y][x] = currentMax.clamp(0.0, 1.0);
       }
     }
   }
 
-  // الآن هذه الدالة أصبحت بسيطة جداً ومضمونة لأنها ترجع البيانات المخزنة
   List<Offset> findAllLocalPeaks() {
     return List.from(realPeaksCenters);
   }

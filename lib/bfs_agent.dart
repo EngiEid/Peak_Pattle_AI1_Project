@@ -1,11 +1,11 @@
 import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'Problem_formulation.dart';
-import 'graph_factory.dart'; // استيراد المصنع الجديد
+import 'graph_factory.dart'; 
 
 class BFSAgent {
   final AIProblem problem;
-  final Map<Offset, List<Offset>> graph; // الـ Graph بييجي جاهز
+  final Map<Offset, List<Offset>> graph;
   List<Offset> nodePath = [];
   int nextNodeIndex = 0;
   Offset currentState;
@@ -14,7 +14,7 @@ class BFSAgent {
       : graph = GraphFactory.buildConnectedGraph(
           startPos: currentState,
           peaks: allPeaks,
-          k: 3, // تقدري تغيري الـ K بسهولة من هنا
+          k: 5, 
         ) {
     _solveTrueBFS(currentState);
   }

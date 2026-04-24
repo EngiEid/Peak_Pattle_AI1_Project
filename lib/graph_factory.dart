@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 class GraphFactory {
-  /// بناء Graph متصل تماماً بحيث كل عقدة مرتبطة بأقرب [k] جيران
   static Map<Offset, List<Offset>> buildConnectedGraph({
     required Offset startPos,
     required List<Offset> peaks,
@@ -10,14 +9,12 @@ class GraphFactory {
     Map<Offset, List<Offset>> graph = {};
     List<Offset> nodes = {startPos, ...peaks}.toList();
 
-    // 1. الربط الأولي (K-Nearest Neighbors)
     for (var node in nodes) {
       List<Offset> others = List.from(nodes)..remove(node);
       others.sort((a, b) => (node - a).distanceSquared.compareTo((node - b).distanceSquared));
       graph[node] = others.take(k).toList();
     }
 
-    // 2. ضمان الاتصال الشامل (Global Connectivity)
     _ensureConnectivity(nodes, startPos, graph);
 
     return graph;

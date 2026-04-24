@@ -3,25 +3,23 @@ import 'dart:math';
 import 'dart:async';
 import 'map_logic.dart';
 import 'map_painter.dart';
-import 'home_page.dart'; // تأكدي من استيراد ملف الـ Home Page الجديد
+import 'home_page.dart';
 import 'naive_agent.dart';
 import 'Problem_formulation.dart';
 import 'hill_climbing_agent.dart';
 import 'bfs_agent.dart';
 import 'dfs_agent.dart';
+import 'a_star_agent.dart';
+import 'greedy_agent.dart';
 
 void main() => runApp(
-  const MaterialApp(
-    debugShowCheckedModeBanner: false,
-    home:
-        GameHomePage(), // تم التغيير هنا لتكون نقطة البداية هي الصفحة الرئيسية
-  ),
+  const MaterialApp(debugShowCheckedModeBanner: false, home: GameHomePage()),
 );
 
-enum AgentType { naive, hillClimbing, bfs, dfs }
+enum AgentType { naive, hillClimbing, bfs, dfs, aStar, greedy }
 
 class MapExplorerApp extends StatefulWidget {
-  final AgentType selectedAgent; // استلام نوع الـ AI المختار
+  final AgentType selectedAgent;
   const MapExplorerApp({super.key, required this.selectedAgent});
 
   @override
@@ -33,9 +31,9 @@ class _MapExplorerAppState extends State<MapExplorerApp>
   late MapData mapData;
   late AnimationController _moveController;
   late Animation<Offset> _playerAnimation;
-  bool _showGraph = false; // هل نظهر الرسم البياني؟
+  bool _showGraph = false;
+  bool _showFinalPath = false;
 
-  // حل المشكلة: تعريف واحد فقط ونوعه dynamic ليدعم كل أنواع الـ Agents
   dynamic _aiAgent;
 
   Offset _aiPos = const Offset(0, 0);
@@ -53,7 +51,7 @@ class _MapExplorerAppState extends State<MapExplorerApp>
   @override
   void initState() {
     super.initState();
-    // تأكدي من استدعاء الأنيميشن قبل _initGame أو العكس بحذر
+
     _moveController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 5),
@@ -70,7 +68,6 @@ class _MapExplorerAppState extends State<MapExplorerApp>
     mapData = MapData(Random().nextInt(10000), step: stepSize);
     AIProblem problem = AIProblem(mapData, stepSize);
 
-    // نقطة البداية الموحدة (المنتصف)
     Offset startPoint = const Offset(100, 100);
 
     if (widget.selectedAgent == AgentType.naive) {
@@ -80,21 +77,24 @@ class _MapExplorerAppState extends State<MapExplorerApp>
     } else if (widget.selectedAgent == AgentType.bfs) {
       List<Offset> peaks = mapData.findAllLocalPeaks();
       _aiAgent = BFSAgent(problem, peaks, startPoint);
-    }
-    if (widget.selectedAgent == AgentType.dfs) {
+    } else if (widget.selectedAgent == AgentType.dfs) {
       List<Offset> peaks = mapData.findAllLocalPeaks();
       _aiAgent = DFSAgent(problem, peaks, startPoint);
+    } else if (widget.selectedAgent == AgentType.aStar) {
+      // التعديل هنا
+      List<Offset> peaks = mapData.findAllLocalPeaks();
+      _aiAgent = AStarAgent(problem, peaks, startPoint);
+    } else if (widget.selectedAgent == AgentType.greedy) {
+      List<Offset> peaks = mapData.findAllLocalPeaks();
+      _aiAgent = GreedyAgent(problem, peaks, startPoint);
     }
 
-    // تحديث موقع الـ AI ليبدأ من المنتصف فعلياً في الرسم
     _aiPos = startPoint;
-    _currentPos = startPoint; // اللاعب يبدأ من المنتصف أيضاً
+    _currentPos = startPoint;
 
     _startTimer();
     _startAiLogic();
   }
-
-  // بقية الدوال (startTimer, startAiLogic, move...) تبقى كما هي
 
   void _startTimer() {
     _gameTimer?.cancel();
@@ -106,7 +106,6 @@ class _MapExplorerAppState extends State<MapExplorerApp>
 
   void _startAiLogic() {
     _aiTimer?.cancel();
-    // خلي الـ AI يتحرك كل 300ms عشان يتماشى مع سرعة الـ AnimationController
     _aiTimer = Timer.periodic(const Duration(milliseconds: 300), (timer) {
       if (mounted) {
         setState(() {
@@ -120,6 +119,7 @@ class _MapExplorerAppState extends State<MapExplorerApp>
   void _reset() {
     setState(() {
       _initGame();
+      _showFinalPath = false;
       _currentPos = const Offset(100, 100);
       _targetPos = const Offset(100, 100);
       _moveCount = 0;
@@ -160,26 +160,21 @@ class _MapExplorerAppState extends State<MapExplorerApp>
   void _stopMoving() => _holdTimer?.cancel();
 
   void _checkWin() {
-    // فحص فوز اللاعب
     double playerDist = (_currentPos - mapData.globalPeakPos).distance;
     if (playerDist < 4.0) {
-      // مسافة سماح للاعب
       _stopGame();
       _showGamifiedWinDialog(isPlayerWinner: true);
       return;
     }
 
-    // فحص فوز الـ AI
     double aiDist = (_aiPos - mapData.globalPeakPos).distance;
     if (aiDist < 4.0) {
-      // مسافة سماح للـ AI
       _stopGame();
       _showGamifiedWinDialog(isPlayerWinner: false);
       return;
     }
   }
 
-  // دالة مساعدة لإيقاف كل الموقتات والحركات
   void _stopGame() {
     _stopMoving();
     _gameTimer?.cancel();
@@ -209,7 +204,6 @@ class _MapExplorerAppState extends State<MapExplorerApp>
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // تغيير العنوان بناءً على النتيجة
                 Text(
                   isPlayerWinner
                       ? "You did it, champ! ✨"
@@ -222,7 +216,6 @@ class _MapExplorerAppState extends State<MapExplorerApp>
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 15),
-                // تغيير الأيقونة: كأس للفوز أو وجه حزين للخسارة
                 Icon(
                   isPlayerWinner
                       ? Icons.emoji_events
@@ -231,7 +224,6 @@ class _MapExplorerAppState extends State<MapExplorerApp>
                   color: isPlayerWinner ? Colors.orange : Colors.grey,
                 ),
                 const SizedBox(height: 15),
-                // إحصائيات الجولة
                 Container(
                   padding: const EdgeInsets.all(15),
                   decoration: BoxDecoration(
@@ -259,20 +251,24 @@ class _MapExplorerAppState extends State<MapExplorerApp>
                   ),
               ],
             ),
-            actions: [
-              Center(
-                child: ElevatedButton(
+actionsAlignment: MainAxisAlignment.center,
+          actions: [
+            // نستخدم Column هنا لترتيب الأزرار فوق بعضها بشكل جمالي
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // 1. زر العودة للرئيسية
+                ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: isPlayerWinner
-                        ? Colors.orange
-                        : Colors.blueGrey,
+                    backgroundColor: isPlayerWinner ? Colors.orange : Colors.blueGrey,
+                    minimumSize: const Size(200, 45), // تكبير الزر قليلاً
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                     ),
                   ),
                   onPressed: () {
-                    Navigator.pop(context); // إغلاق الـ Dialog
-                    Navigator.pop(context); // العودة للـ Home Page
+                    Navigator.pop(context); // قفل الديالموج
+                    Navigator.pop(context); // الرجوع للهوم
                   },
                   child: const Text(
                     "Back to Home 🏠",
@@ -282,11 +278,35 @@ class _MapExplorerAppState extends State<MapExplorerApp>
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 10),
-            ],
-          ),
-        );
+                
+                const SizedBox(height: 8), // مسافة بسيطة بين الزرين
+
+                // 2. زر التحليل (يظهر فقط لأنواع معينة من الـ AI)
+                if (widget.selectedAgent != AgentType.naive &&
+                    widget.selectedAgent != AgentType.hillClimbing)
+                  TextButton.icon(
+                    onPressed: () {
+                      setState(() {
+                        _showFinalPath = true;
+                        _showGraph = true;
+                      });
+                      Navigator.pop(context); // قفل الديالوج فقط
+                    },
+                    icon: const Icon(Icons.auto_awesome_motion, color: Colors.blueGrey),
+                    label: const Text(
+                      "Analyze AI Strategy 🧠",
+                      style: TextStyle(
+                        color: Colors.blueGrey, 
+                        fontWeight: FontWeight.bold
+                      ),
+                    ),
+                  ),
+                
+                const SizedBox(height: 10),
+              ],
+            ),
+          ],
+        ));
       },
     );
   }
@@ -323,7 +343,6 @@ class _MapExplorerAppState extends State<MapExplorerApp>
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // صف العنوان والتايمر
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -389,7 +408,13 @@ class _MapExplorerAppState extends State<MapExplorerApp>
                             ? (_aiAgent as BFSAgent).graph
                             : (widget.selectedAgent == AgentType.dfs)
                             ? (_aiAgent as DFSAgent).graph
+                            : (widget.selectedAgent ==
+                                  AgentType.aStar) // أضيفي هذا السطر
+                            ? (_aiAgent as AStarAgent).graph
+                            : (widget.selectedAgent == AgentType.greedy)
+                            ? (_aiAgent as GreedyAgent).graph
                             : null,
+                        aiNodePath: _showFinalPath ? _aiAgent.nodePath : null,
                       ),
                     ),
                   ),
@@ -398,7 +423,10 @@ class _MapExplorerAppState extends State<MapExplorerApp>
                 // زر تبديل الـ Graph (يظهر فقط في حالة BFS)
                 // زر تبديل الـ Graph (يظهر في BFS و DFS)
                 if (widget.selectedAgent == AgentType.bfs ||
-                    widget.selectedAgent == AgentType.dfs)
+                    widget.selectedAgent == AgentType.dfs ||
+                    widget.selectedAgent == AgentType.aStar ||
+                    widget.selectedAgent ==
+                        AgentType.greedy) // أضيفي الـ aStar هنا
                   Positioned(
                     top: 10,
                     right: 10,
