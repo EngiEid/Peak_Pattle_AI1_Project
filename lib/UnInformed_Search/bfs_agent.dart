@@ -19,7 +19,7 @@ class BFSAgent {
     _solveTrueBFS(currentState);
   }
 
-  void _solveTrueBFS(Offset start) {
+  void _solveTrueBFS(Offset start) {        // Create the nodePath
     Queue<Offset> queue = Queue();
     Set<Offset> visited = {start};
     queue.add(start);
@@ -39,7 +39,7 @@ class BFSAgent {
     }
   }
 
-  Offset getNextMove() {
+  Offset getNextMove() {               // loop on node path to move the agent
     if (nodePath.isEmpty || nextNodeIndex >= nodePath.length) return currentState;
 
     Offset targetNode = nodePath[nextNodeIndex];

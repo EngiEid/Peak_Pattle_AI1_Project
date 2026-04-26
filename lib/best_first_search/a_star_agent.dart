@@ -19,7 +19,7 @@ class AStarAgent {
   }
 
   double _heuristic(Offset node) {
-    return (node - problem.mapData.globalPeakPos).distance;
+    return problem.getDistanceToGoal(node);
   }
 
   void _solveAStar(Offset start) {

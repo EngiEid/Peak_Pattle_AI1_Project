@@ -27,7 +27,7 @@ class AIProblem {
     return Offset(nextX, nextY);
   }
 
-  double getElevation(Offset state) {
+  double getElevation(Offset state) {    // Helps to know the z value
     int x = state.dx.toInt();
     int y = state.dy.toInt();
     x = x.clamp(0, mapData.gridSize - 1);
@@ -36,7 +36,6 @@ class AIProblem {
   }
 
   double getDistanceToGoal(Offset state) {
-    return (state.dx - mapData.globalPeakPos.dx).abs() + 
-           (state.dy - mapData.globalPeakPos.dy).abs();
+    return (state - mapData.globalPeakPos).distance;
   }
 }
