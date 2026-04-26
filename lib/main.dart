@@ -9,8 +9,8 @@ import 'Problem_formulation.dart';
 import 'local_search/hill_climbing_agent.dart';
 import 'uninformed_search/bfs_agent.dart';
 import 'uninformed_search/dfs_agent.dart';
-import 'informed_search/a_star_agent.dart';
-import 'informed_search/greedy_agent.dart';
+import 'best_first_search/a_star_agent.dart';
+import 'best_first_search/greedy_agent.dart';
 
 void main() => runApp(
   const MaterialApp(debugShowCheckedModeBanner: false, home: GameHomePage()),

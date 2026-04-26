@@ -60,7 +60,7 @@ class MapPainter extends CustomPainter {
 
     if (showGraph && aiGraph != null) {
       final graphPaint = Paint()
-        ..color = Colors.cyanAccent.withOpacity(0.15) 
+        ..color = Colors.cyanAccent 
         ..strokeWidth = 1.0
         ..style = PaintingStyle.stroke;
 
