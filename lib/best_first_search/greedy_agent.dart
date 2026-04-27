@@ -67,7 +67,7 @@ class GreedyAgent {
       nextNodeIndex++;
       return currentState;
     }
-    double step = 4.0; 
+    double step = 3.8; 
     currentState += Offset((dx / distance) * step, (dy / distance) * step);
     return currentState;
   }

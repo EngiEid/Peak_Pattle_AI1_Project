@@ -43,7 +43,7 @@ class AStarAgent {
       for (Offset neighbor in graph[current] ?? []) {
         double tentativeGScore = gScore[current]! + (current - neighbor).distance;
 
-        if (!gScore.containsKey(neighbor) || tentativeGScore < gScore[neighbor]!) {
+        if (!gScore.containsKey(neighbor) || tentativeGScore < gScore[neighbor]!) {    // علشان احنا معندناش visited فلازم نشيك او اني لقيت g(n) اقصر لنفس ال node من اللي اكتشفته قبل كدا
           parent[neighbor] = current;
           gScore[neighbor] = tentativeGScore;
           fScore[neighbor] = gScore[neighbor]! + _heuristic(neighbor);
